@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# post-commit-standalone — play a sound on every commit, zero dependencies.
+#
+# The simplest possible "feedback on commit": pick a player that exists and
+# fire a short cue. Drop this in as .git/hooks/post-commit (or install it
+# globally via a git template, see ../README.md).
+#
+# Disable per-shell with:  ELO_COMMIT_SOUND_DISABLE=1
+# Override the sound with:  ELO_COMMIT_SOUND_FILE=/path/to/cue.oga
+
+set -u
+
+[ -n "${ELO_COMMIT_SOUND_DISABLE:-}" ] && exit 0
+
+SOUND="${ELO_COMMIT_SOUND_FILE:-/usr/share/sounds/freedesktop/stereo/complete.oga}"
+[ -r "$SOUND" ] || exit 0
+
+play() {
+  if command -v paplay >/dev/null 2>&1; then paplay "$SOUND"
+  elif command -v pw-play >/dev/null 2>&1; then pw-play "$SOUND"
+  elif command -v aplay  >/dev/null 2>&1; then aplay -q "$SOUND"
+  elif command -v ffplay >/dev/null 2>&1; then ffplay -nodisp -autoexit -loglevel quiet "$SOUND"
+  fi
+}
+
+# Fire-and-forget so the hook never blocks the commit.
+( play >/dev/null 2>&1 || true ) &
+disown 2>/dev/null || true
+exit 0

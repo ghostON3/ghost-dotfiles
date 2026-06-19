@@ -1,0 +1,7 @@
+# Personal overlay — never commit the real one
+hypr/personal.conf
+
+# Editor / OS noise
+*.swp
+*~
+.DS_Store

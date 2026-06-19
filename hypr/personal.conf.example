@@ -1,0 +1,28 @@
+# Personal overlay — example.
+#
+# This is where I wire bindings to my own private tooling. None of these
+# binaries ship in this repo; the file is here to show the shape of the
+# integration and to keep the core hyprland.conf portable.
+#
+# Usage:
+#   cp personal.conf.example personal.conf
+#   # edit to point at YOUR scripts
+#   # then in hyprland.conf:  source = ~/.config/hypr/personal.conf
+
+# --- Launch my desktop overlay at login ---
+# exec-once = ~/path/to/your/desktop-overlay
+
+# --- Middle mouse: close whitelisted apps, SUPER+middle: region-snip → OCR → clipboard ---
+# bind = ,         mouse:274, exec, ~/.local/bin/mmb-close
+# bind = $mainMod, mouse:274, exec, ~/.local/bin/region-snip
+
+# --- Mouse side buttons → spawn terminal/agent sessions ---
+# bind = , mouse:276, exec, ~/.local/bin/spawn-session 1
+# bind = , mouse:275, exec, ~/.local/bin/spawn-session 2
+
+# --- Batch screenshot collector (appends regions, builds a context bundle) ---
+# bind = CTRL SHIFT ALT, S, exec, ~/.local/bin/shot-collect
+# bind = CTRL SHIFT ALT, R, exec, ~/.local/bin/shot-collect --reset
+
+# --- Push-to-talk voice input (whisper) ---
+# bind = SUPER, Space, exec, ~/.local/bin/voice-ptt

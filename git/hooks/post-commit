@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Elo Evolution — post-commit sound trigger.
+#
+# Fires a non-blocking POST to the local API on every commit. The API
+# fans the event out to every connected client (web, tauri, extension)
+# which then plays a procedural sound cue.
+#
+# Disabled when:
+#   - $ELO_COMMIT_SOUND_DISABLE is set (any value)
+#   - the API is not running (curl fails silently — fire-and-forget)
+#   - the commit is in a detached HEAD state with no branch name
+#
+# Endpoint + curl timeout are overridable via env so power users can
+# point at a remote dev API or a longer/shorter budget. Defaults assume
+# the canonical local-first setup.
+
+set -u
+
+if [ -n "${ELO_COMMIT_SOUND_DISABLE:-}" ]; then
+  exit 0
+fi
+
+ENDPOINT="${ELO_COMMIT_SOUND_URL:-http://localhost:3000/git-commits}"
+TIMEOUT="${ELO_COMMIT_SOUND_TIMEOUT:-1}"
+
+SHA="$(git rev-parse HEAD 2>/dev/null)" || exit 0
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)" || exit 0
+[ "$BRANCH" = "HEAD" ] && BRANCH="detached"
+MESSAGE="$(git log -1 --pretty=%B 2>/dev/null | head -c 4000)"
+AUTHOR="$(git log -1 --pretty='%an <%ae>' 2>/dev/null)"
+REPO="$(basename "$(git rev-parse --show-toplevel 2>/dev/null)")"
+TS="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
+
+# Build JSON via jq if available (handles quoting); fall back to a manual
+# shell-escape that survives quotes, backslashes, and newlines.
+if command -v jq >/dev/null 2>&1; then
+  PAYLOAD="$(jq -nc \
+    --arg repo    "$REPO" \
+    --arg sha     "$SHA" \
+    --arg branch  "$BRANCH" \
+    --arg message "$MESSAGE" \
+    --arg author  "$AUTHOR" \
+    --arg ts      "$TS" \
+    '{repo:$repo, sha:$sha, branch:$branch, message:$message, author:$author, ts:$ts}')"
+else
+  esc() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\\n/g'; }
+  PAYLOAD="{\"repo\":\"$(esc "$REPO")\",\"sha\":\"$(esc "$SHA")\",\"branch\":\"$(esc "$BRANCH")\",\"message\":\"$(esc "$MESSAGE")\",\"author\":\"$(esc "$AUTHOR")\",\"ts\":\"$(esc "$TS")\"}"
+fi
+
+# Background, fire-and-forget. Output silenced so the hook never spams the
+# terminal on success or failure. The API logs its own audit line.
+(
+  curl -sS \
+    --max-time "$TIMEOUT" \
+    -H "Content-Type: application/json" \
+    -X POST "$ENDPOINT" \
+    -d "$PAYLOAD" \
+    >/dev/null 2>&1 || true
+) &
+
+disown 2>/dev/null || true
+exit 0
