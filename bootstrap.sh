@@ -36,9 +36,11 @@ package_args=(--profiles "$(IFS=,; echo "${profiles[*]}")")
 if [[ "$mode" == "apply" ]]; then
   "$ROOT/bootstrap/install-packages.sh" --apply "${package_args[@]}"
   "$ROOT/install.sh"
+  "$ROOT/bootstrap/install-services.sh" --apply
 else
   "$ROOT/bootstrap/install-packages.sh" --dry-run "${package_args[@]}"
   "$ROOT/install.sh" --dry-run
+  "$ROOT/bootstrap/install-services.sh" --dry-run
 fi
 
 echo

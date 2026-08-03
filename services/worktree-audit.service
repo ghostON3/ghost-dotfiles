@@ -1,0 +1,6 @@
+[Unit]
+Description=Audit stale Git worktree metadata without changing it
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/worktree-audit

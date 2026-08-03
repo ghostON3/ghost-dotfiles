@@ -18,3 +18,4 @@ pacman-contrib
 zsh-autosuggestions
 zsh-syntax-highlighting
 zsh-completions
+rsync

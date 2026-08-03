@@ -69,6 +69,8 @@ link "$REPO/git/config" "$HOME/.config/git/ghost-dotfiles.conf"
 # profile directories; only the reusable launch mechanics are linked here.
 link "$REPO/operator/bin/spawn-agent-session" "$HOME/.local/bin/spawn-agent-session"
 link "$REPO/operator/bin/new-agent-worktree" "$HOME/.local/bin/new-agent-worktree"
+link "$REPO/operator/bin/worktree-audit" "$HOME/.local/bin/worktree-audit"
+link "$REPO/recovery/backup-freshness.sh" "$HOME/.local/bin/backup-freshness"
 link "$REPO/shell/agent-slots.zsh" "$HOME/.config/ghost-dotfiles/agent-slots.zsh"
 copy_initial "$REPO/operator/config/defaults.env" "$HOME/.config/ghost-operator/config.env"
 

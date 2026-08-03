@@ -31,6 +31,8 @@ remove_owned_link "$HOME/.config/rofi/config.rasi" "$ROOT/rofi/config.rasi"
 remove_owned_link "$HOME/.config/git/ghost-dotfiles.conf" "$ROOT/git/config"
 remove_owned_link "$HOME/.local/bin/spawn-agent-session" "$ROOT/operator/bin/spawn-agent-session"
 remove_owned_link "$HOME/.local/bin/new-agent-worktree" "$ROOT/operator/bin/new-agent-worktree"
+remove_owned_link "$HOME/.local/bin/worktree-audit" "$ROOT/operator/bin/worktree-audit"
+remove_owned_link "$HOME/.local/bin/backup-freshness" "$ROOT/recovery/backup-freshness.sh"
 remove_owned_link "$HOME/.config/ghost-dotfiles/agent-slots.zsh" "$ROOT/shell/agent-slots.zsh"
 
 echo "User-owned config and timestamped backups were preserved."
