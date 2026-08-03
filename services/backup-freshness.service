@@ -1,0 +1,6 @@
+[Unit]
+Description=Verify that the private workstation backup is recent
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup-freshness

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Read-only stale-worktree audit across configured repository roots.
+set -euo pipefail
+
+roots=("${GHOST_PROJECTS_ROOT:-$HOME/projects}" "${GHOST_WORK_ROOT:-$HOME/work}")
+found=0
+
+for root in "${roots[@]}"; do
+  [[ -d "$root" ]] || continue
+  while IFS= read -r git_marker; do
+    repo="$(dirname "$git_marker")"
+    git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1 || continue
+    common="$(git -C "$repo" rev-parse --git-common-dir 2>/dev/null)"
+    [[ "$common" == ".git" ]] || continue
+    found=$((found + 1))
+    output="$(git -C "$repo" worktree prune --dry-run --verbose 2>&1 || true)"
+    if [[ -n "$output" ]]; then
+      printf '%s\n%s\n' "$repo" "$output"
+    fi
+  done < <(find "$root" -mindepth 2 -maxdepth 3 -name .git -print 2>/dev/null)
+done
+
+echo "worktree-audit: inspected $found primary repositories; no state changed"

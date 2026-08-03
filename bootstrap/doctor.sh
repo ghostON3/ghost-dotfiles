@@ -55,6 +55,8 @@ check_command kitty core 'detached agent terminals'
 check_command jq core 'Hyprland JSON state and safe hook payloads'
 check_command hyprctl core 'window/workspace control'
 check_command wl-copy core 'Wayland clipboard integration'
+check_command zsh core 'interactive operator shell'
+check_command rsync core 'private backup and recovery'
 
 printf '\nCapture and input\n'
 check_command grim optional 'Wayland screenshots'
@@ -68,10 +70,17 @@ printf '\nAgent providers\n'
 check_command claude optional 'Claude Code seats'
 check_command codex optional 'Codex seats'
 check_command agy optional 'Antigravity slot wrapper'
+check_command gh optional 'GitHub pull-request workflow'
+check_command node optional 'JavaScript tooling runtime'
+check_command pnpm optional 'workspace package manager'
+check_command docker optional 'local container runtime'
 
 printf '\nManaged configuration\n'
 check_link "$HOME/.config/hypr/hyprland.conf" 'Hyprland config'
 check_link "$HOME/.tmux.conf" 'tmux config'
+check_link "$HOME/.zshrc" 'Zsh config'
+check_link "$HOME/.config/kitty/kitty.conf" 'Kitty config'
+check_link "$HOME/.config/rofi/config.rasi" 'Rofi config'
 check_link "$HOME/.local/bin/spawn-agent-session" 'agent session launcher'
 check_link "$HOME/.local/bin/new-agent-worktree" 'worktree launcher'
 
@@ -81,6 +90,9 @@ if [[ -r "$operator_config" ]]; then
 else
   note 'operator profile map is not initialized'
 fi
+
+backup_marker="$HOME/.local/state/ghost-backup/last-success"
+[[ -r "$backup_marker" ]] && pass 'private backup has a success marker' || note 'no private backup success marker yet'
 
 printf '\nSummary: %d ok · %d warnings · %d missing core capabilities\n' "$ok" "$warn" "$fail"
 if (( strict && fail > 0 )); then

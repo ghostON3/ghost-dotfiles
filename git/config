@@ -1,0 +1,25 @@
+[alias]
+    wt = worktree
+    wta = worktree add
+    wtl = worktree list
+    wtr = worktree remove
+    s = status -sb
+    d = diff
+    ds = diff --staged
+    l = log --oneline -20
+    ap = add -p
+
+[merge]
+    conflictStyle = zdiff3
+
+[fetch]
+    prune = true
+
+[pull]
+    ff = only
+
+[rerere]
+    enabled = true
+
+# Identity, signing keys and credential helpers intentionally live in the
+# machine-private ~/.gitconfig, which includes this public file.
