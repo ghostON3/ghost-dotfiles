@@ -1,0 +1,4 @@
+# Optional AUR packages used by the live shell. The bootstrap does not install
+# an AUR helper or execute third-party PKGBUILDs automatically.
+fzf-tab-git
+pnpm-shell-completion

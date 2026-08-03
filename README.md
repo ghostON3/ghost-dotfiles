@@ -75,19 +75,23 @@ debt-ratchet system I use in production-sized monorepos.
 ## Install
 
 ```sh
-git clone https://github.com/ghostON3/ghost-dotfiles
+git clone https://github.com/ghostON3/ghost-dotfiles.git
 cd ghost-dotfiles
-./install.sh
+./bootstrap.sh --dry-run
+./bootstrap.sh --apply --profiles desktop,developer,operator,voice
 ```
 
-`install.sh` symlinks configs into `~/.config`, backs up anything it would
-clobber, and installs the commit-sound hook into your global git template.
+`bootstrap.sh` installs selected official Arch packages and delegates to the
+ownership-safe linker. Dry-run is the default. Credentials are restored through
+the separate private boundary described in the
+[`fresh-machine runbook`](docs/fresh-machine.md).
 
 After installation, inspect the machine without changing it:
 
 ```sh
 ./bootstrap/doctor.sh
 ./bootstrap/doctor.sh --strict  # non-zero when a core capability is missing
+./tests/bootstrap-smoke.sh      # isolated HOME; does not touch live config
 ```
 
 ### Dependencies
