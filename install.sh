@@ -19,6 +19,17 @@ link() {
   echo "link:   $dst -> $src"
 }
 
+copy_initial() {
+  local src="$1" dst="$2"
+  mkdir -p "$(dirname "$dst")"
+  if [ -e "$dst" ]; then
+    echo "keep:   $dst (user-owned config)"
+    return
+  fi
+  cp "$src" "$dst"
+  echo "init:   $dst <- $src"
+}
+
 # Hyprland
 link "$REPO/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
 link "$REPO/hypr/hyprlock.conf" "$HOME/.config/hypr/hyprlock.conf"
@@ -26,6 +37,13 @@ link "$REPO/hypr/scripts"       "$HOME/.config/hypr/scripts"
 
 # tmux
 link "$REPO/tmux/tmux.conf" "$HOME/.tmux.conf"
+
+# Agent/operator launchers. Credentials and CLI state remain in their native
+# profile directories; only the reusable launch mechanics are linked here.
+link "$REPO/operator/bin/spawn-agent-session" "$HOME/.local/bin/spawn-agent-session"
+link "$REPO/operator/bin/new-agent-worktree" "$HOME/.local/bin/new-agent-worktree"
+link "$REPO/shell/agent-slots.zsh" "$HOME/.config/ghost-dotfiles/agent-slots.zsh"
+copy_initial "$REPO/operator/config/defaults.env" "$HOME/.config/ghost-operator/config.env"
 
 # Git commit-sound hook (standalone variant) via global template
 mkdir -p "$HOME/.config/git/template/hooks"
@@ -37,5 +55,6 @@ echo "git:    commit-sound hook installed to template dir"
 echo
 echo "Done. Next:"
 echo "  - cp hypr/personal.conf.example ~/.config/hypr/personal.conf  (optional)"
+echo "  - source ~/.config/ghost-dotfiles/agent-slots.zsh from ~/.zshrc"
 echo "  - install tmux plugins: prefix + I  (after cloning tpm)"
 echo "  - reload Hyprland: hyprctl reload"

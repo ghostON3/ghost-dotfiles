@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Create an isolated branch/worktree, then launch an agent profile inside it.
+set -euo pipefail
+
+operator_config="${GHOST_OPERATOR_CONFIG:-$HOME/.config/ghost-operator/config.env}"
+if [[ -r "$operator_config" ]]; then
+  # shellcheck disable=SC1090
+  source "$operator_config"
+fi
+
+provider="${1:-}"
+profile="${2:-default}"
+base="${3:-}"
+slug="${4:-}"
+
+if [[ -z "$provider" || -z "$base" || -z "$slug" ]]; then
+  echo "usage: new-agent-worktree <provider> <profile|default> <base-ref> <slug>" >&2
+  exit 64
+fi
+
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+  echo "not inside a Git repository" >&2
+  exit 69
+}
+repo_name="$(basename "$repo_root")"
+safe_slug="$(printf '%s' "$slug" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+|-+$//g')"
+[[ -n "$safe_slug" ]] || { echo "slug contains no usable characters" >&2; exit 64; }
+
+git -C "$repo_root" rev-parse --verify "${base}^{commit}" >/dev/null 2>&1 || {
+  echo "base ref is not available locally: $base (fetch explicitly, then retry)" >&2
+  exit 65
+}
+
+preferred="${GHOST_WORKTREE_ROOT:-/data/worktrees}"
+fallback="${GHOST_WORKTREE_FALLBACK_ROOT:-$HOME/worktrees}"
+max_used="${GHOST_WORKTREE_MAX_USED_PCT:-94}"
+root="$preferred"
+
+used_pct="$(df -P "$preferred" 2>/dev/null | awk 'NR == 2 { gsub(/%/, "", $5); print $5 }')"
+if [[ ! -d "$preferred" || ! -w "$preferred" || ( -n "$used_pct" && "$used_pct" -ge "$max_used" ) ]]; then
+  root="$fallback"
+fi
+
+branch="work/$safe_slug"
+target="$root/$repo_name/$safe_slug"
+[[ ! -e "$target" ]] || { echo "worktree target already exists: $target" >&2; exit 73; }
+git -C "$repo_root" show-ref --verify --quiet "refs/heads/$branch" && {
+  echo "branch already exists: $branch" >&2
+  exit 73
+}
+
+mkdir -p "$(dirname "$target")"
+git -C "$repo_root" worktree add -b "$branch" "$target" "$base"
+exec "$HOME/.local/bin/spawn-agent-session" "$provider" "$profile" "$target"
