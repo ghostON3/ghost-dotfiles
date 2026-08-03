@@ -58,6 +58,13 @@ link "$REPO/hypr/scripts"       "$HOME/.config/hypr/scripts"
 # tmux
 link "$REPO/tmux/tmux.conf" "$HOME/.tmux.conf"
 
+# Shell and terminal/launcher surfaces
+link "$REPO/shell/zshrc" "$HOME/.zshrc"
+link "$REPO/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
+link "$REPO/kitty/theme.conf" "$HOME/.config/kitty/theme.conf"
+link "$REPO/rofi/config.rasi" "$HOME/.config/rofi/config.rasi"
+link "$REPO/git/config" "$HOME/.config/git/ghost-dotfiles.conf"
+
 # Agent/operator launchers. Credentials and CLI state remain in their native
 # profile directories; only the reusable launch mechanics are linked here.
 link "$REPO/operator/bin/spawn-agent-session" "$HOME/.local/bin/spawn-agent-session"
@@ -73,6 +80,7 @@ mkdir -p "$HOME/.config/git/template/hooks"
 cp "$REPO/git/hooks/post-commit-standalone" "$HOME/.config/git/template/hooks/post-commit"
 chmod +x "$HOME/.config/git/template/hooks/post-commit"
 git config --global init.templateDir "$HOME/.config/git/template"
+git config --global --replace-all include.path "$HOME/.config/git/ghost-dotfiles.conf" '^~/.config/git/ghost-dotfiles\.conf$'
 echo "git:    commit-sound hook installed to template dir"
 fi
 

@@ -15,3 +15,6 @@ docker
 docker-compose
 btrfs-progs
 pacman-contrib
+zsh-autosuggestions
+zsh-syntax-highlighting
+zsh-completions

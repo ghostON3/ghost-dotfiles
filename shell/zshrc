@@ -1,0 +1,53 @@
+# Public workstation shell. Machine- and account-private additions belong in
+# ~/.config/ghost-private/shell.zsh and are sourced last.
+
+export EDITOR="${EDITOR:-nvim}"
+export VISUAL="$EDITOR"
+export PAGER="${PAGER:-less}"
+export PATH="$HOME/.local/bin:$PATH"
+
+# Concurrent agent shells must not corrupt one shared history file.
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
+setopt APPEND_HISTORY
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_FCNTL_LOCK
+setopt HIST_IGNORE_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt EXTENDED_HISTORY
+
+autoload -Uz compinit && compinit
+bindkey -e
+bindkey '^[[H' beginning-of-line
+bindkey '^[OH' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[OF' end-of-line
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+# Distribution plugins are optional: a half-bootstrapped machine still gets a
+# working shell and doctor reports the missing packages.
+[[ -r /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh ]] && source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh
+[[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+[[ -r /usr/share/zsh/plugins/pnpm-shell-completion/pnpm-shell-completion.zsh ]] && source /usr/share/zsh/plugins/pnpm-shell-completion/pnpm-shell-completion.zsh
+
+alias gs='git status -sb'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline -20'
+alias gf='git fetch origin'
+alias gsw='git switch'
+alias gst='git stash'
+alias ap='git add -p'
+alias wtl='git worktree list'
+alias wta='git worktree add'
+alias wtr='git worktree remove'
+command -v bat >/dev/null && alias cat='bat'
+command -v eza >/dev/null && alias ls='eza --group-directories-first'
+
+[[ -r "$HOME/.config/ghost-dotfiles/agent-slots.zsh" ]] && source "$HOME/.config/ghost-dotfiles/agent-slots.zsh"
+[[ -r "$HOME/.config/ghost-private/shell.zsh" ]] && source "$HOME/.config/ghost-private/shell.zsh"
