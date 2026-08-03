@@ -58,3 +58,4 @@ echo "  - cp hypr/personal.conf.example ~/.config/hypr/personal.conf  (optional)
 echo "  - source ~/.config/ghost-dotfiles/agent-slots.zsh from ~/.zshrc"
 echo "  - install tmux plugins: prefix + I  (after cloning tpm)"
 echo "  - reload Hyprland: hyprctl reload"
+echo "  - run ./bootstrap/doctor.sh for a read-only capability report"

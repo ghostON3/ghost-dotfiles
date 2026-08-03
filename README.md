@@ -15,6 +15,7 @@ operator/ portable launchers for isolated worktrees and concurrent agent seats
 enforcement/ AST rules and architecture gates extracted from production work
 shell/   current-directory shortcuts for separately authenticated CLI profiles
 install.sh   symlink everything into place (idempotent, backs up originals)
+bootstrap/ dependency manifest + read-only workstation doctor
 ```
 
 ## The parts I'd point a reviewer at
@@ -81,6 +82,13 @@ cd ghost-dotfiles
 
 `install.sh` symlinks configs into `~/.config`, backs up anything it would
 clobber, and installs the commit-sound hook into your global git template.
+
+After installation, inspect the machine without changing it:
+
+```sh
+./bootstrap/doctor.sh
+./bootstrap/doctor.sh --strict  # non-zero when a core capability is missing
+```
 
 ### Dependencies
 
