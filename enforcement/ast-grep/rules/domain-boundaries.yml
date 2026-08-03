@@ -1,0 +1,33 @@
+id: no-ambient-time-in-domain
+language: TypeScript
+severity: error
+message: Inject a Clock into domain code instead of reading ambient wall time.
+rule:
+  any:
+    - pattern: Date.now()
+    - pattern: new Date()
+files:
+  - "**/domain/**/*.{ts,tsx}"
+  - "**/core/**/*.{ts,tsx}"
+---
+id: no-inline-environment-access
+language: TypeScript
+severity: error
+message: Parse environment variables once in the configuration layer.
+rule:
+  pattern: process.env.$KEY
+files:
+  - "**/domain/**/*.{ts,tsx}"
+  - "**/core/**/*.{ts,tsx}"
+---
+id: no-drizzle-in-domain
+language: TypeScript
+severity: error
+message: Domain code depends on repository ports; Drizzle stays in adapters.
+rule:
+  any:
+    - pattern: import $$$A from 'drizzle-orm'
+    - pattern: import $$$A from 'drizzle-orm/$PATH'
+files:
+  - "**/domain/**/*.{ts,tsx}"
+  - "**/core/**/*.{ts,tsx}"
