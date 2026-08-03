@@ -5,11 +5,23 @@
 # Run from the repo root:  ./install.sh
 set -euo pipefail
 
+DRY_RUN=0
+if [[ "${1:-}" == "--dry-run" ]]; then
+  DRY_RUN=1
+elif [[ $# -gt 0 ]]; then
+  echo "usage: ./install.sh [--dry-run]" >&2
+  exit 64
+fi
+
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 link() {
   local src="$1" dst="$2"
+  if (( DRY_RUN )); then
+    echo "would link: $dst -> $src"
+    return
+  fi
   mkdir -p "$(dirname "$dst")"
   if [ -e "$dst" ] && [ ! -L "$dst" ]; then
     echo "backup: $dst -> $dst.bak-$STAMP"
@@ -21,6 +33,14 @@ link() {
 
 copy_initial() {
   local src="$1" dst="$2"
+  if (( DRY_RUN )); then
+    if [ -e "$dst" ]; then
+      echo "would keep: $dst (user-owned config)"
+    else
+      echo "would init: $dst <- $src"
+    fi
+    return
+  fi
   mkdir -p "$(dirname "$dst")"
   if [ -e "$dst" ]; then
     echo "keep:   $dst (user-owned config)"
@@ -46,11 +66,15 @@ link "$REPO/shell/agent-slots.zsh" "$HOME/.config/ghost-dotfiles/agent-slots.zsh
 copy_initial "$REPO/operator/config/defaults.env" "$HOME/.config/ghost-operator/config.env"
 
 # Git commit-sound hook (standalone variant) via global template
+if (( DRY_RUN )); then
+  echo "would install: Git commit-sound template hook"
+else
 mkdir -p "$HOME/.config/git/template/hooks"
 cp "$REPO/git/hooks/post-commit-standalone" "$HOME/.config/git/template/hooks/post-commit"
 chmod +x "$HOME/.config/git/template/hooks/post-commit"
 git config --global init.templateDir "$HOME/.config/git/template"
 echo "git:    commit-sound hook installed to template dir"
+fi
 
 echo
 echo "Done. Next:"
