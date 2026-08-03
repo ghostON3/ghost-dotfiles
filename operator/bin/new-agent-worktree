@@ -2,6 +2,12 @@
 # Create an isolated branch/worktree, then launch an agent profile inside it.
 set -euo pipefail
 
+operator_config="${GHOST_OPERATOR_CONFIG:-$HOME/.config/ghost-operator/config.env}"
+if [[ -r "$operator_config" ]]; then
+  # shellcheck disable=SC1090
+  source "$operator_config"
+fi
+
 provider="${1:-}"
 profile="${2:-default}"
 base="${3:-}"

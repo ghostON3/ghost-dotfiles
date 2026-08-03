@@ -2,6 +2,14 @@
 # Open a provider profile in a uniquely named tmux session inside Kitty.
 set -euo pipefail
 
+operator_config="${GHOST_OPERATOR_CONFIG:-$HOME/.config/ghost-operator/config.env}"
+if [[ -r "$operator_config" ]]; then
+  # User-owned initial configuration created by install.sh. It contains paths
+  # and command names only; provider credentials remain in provider directories.
+  # shellcheck disable=SC1090
+  source "$operator_config"
+fi
+
 provider="${1:-}"
 profile="${2:-default}"
 workdir="${3:-$PWD}"
@@ -22,23 +30,33 @@ suffix=""
 nonce="$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')"
 session="${provider}-${profile}-${nonce}"
 
+configured_profile() {
+  local prefix="$1" selected="$2" fallback="$3" key value
+  key="${prefix}_PROFILE_${selected^^}"
+  value="${!key:-}"
+  printf '%s' "${value:-$fallback}"
+}
+
 case "$provider" in
   claude)
     command_name="${CLAUDE_COMMAND:-claude}"
-    config_dir="${CLAUDE_PROFILE_ROOT:-$HOME/.claude}${suffix}"
+    config_dir="$(configured_profile CLAUDE "$profile" "${CLAUDE_PROFILE_ROOT:-$HOME/.claude}${suffix}")"
     [[ -d "$config_dir" ]] || { echo "Claude profile not found: $config_dir" >&2; exit 66; }
     env_args=("CLAUDE_CONFIG_DIR=$config_dir")
     ;;
   codex)
     command_name="${CODEX_COMMAND:-codex}"
-    config_dir="${CODEX_PROFILE_ROOT:-$HOME/.codex}${suffix}"
+    config_dir="$(configured_profile CODEX "$profile" "${CODEX_PROFILE_ROOT:-$HOME/.codex}${suffix}")"
     [[ -d "$config_dir" ]] || { echo "Codex profile not found: $config_dir" >&2; exit 66; }
     env_args=("CODEX_HOME=$config_dir")
     ;;
   antigravity)
     command_name="${ANTIGRAVITY_COMMAND:-agy}"
     env_args=()
-    [[ "$profile" == "default" ]] || set -- "$profile" "$@"
+    if [[ "$profile" != "default" ]]; then
+      slot_key="ANTIGRAVITY_SLOT_${profile^^}"
+      set -- "${!slot_key:-$profile}" "$@"
+    fi
     ;;
   *) usage ;;
 esac

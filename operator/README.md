@@ -18,7 +18,26 @@ Each invocation opens a detached Kitty window containing a uniquely named tmux
 session. Concurrent sessions therefore do not collide even when they use the
 same provider profile.
 
-Provider commands and profile roots are configurable:
+## Initial default configuration
+
+`install.sh` copies `operator/config/defaults.env` to
+`~/.config/ghost-operator/config.env` only when that file does not already
+exist. The copy becomes user-owned: later repository updates never overwrite
+local profile choices.
+
+The defaults make all three providers visible immediately:
+
+```sh
+CLAUDE_PROFILE_1="$HOME/.claude-1"
+CODEX_PROFILE_1="$HOME/.codex"
+ANTIGRAVITY_COMMAND="agy"
+```
+
+Edit the local copy when profile directories use account-specific names. Do
+not put tokens or credentials in it; it maps human slot names to provider-owned
+directories.
+
+Provider commands and fallback profile roots are also configurable:
 
 ```sh
 export CLAUDE_PROFILE_ROOT="$HOME/.claude"
@@ -26,8 +45,9 @@ export CODEX_PROFILE_ROOT="$HOME/.codex"
 export ANTIGRAVITY_COMMAND=agy
 ```
 
-Numbered profiles use a `-N` suffix (`~/.claude-4`, `~/.codex-2`). The
-`default` profile uses the unsuffixed directory.
+Without an explicit mapping, numbered profiles use a `-N` suffix
+(`~/.claude-4`, `~/.codex-2`). The `default` profile uses the unsuffixed
+directory.
 
 ## New branch + isolated worktree + session
 
@@ -58,9 +78,17 @@ worktrees. Those are lifecycle decisions, not session-start side effects.
 
 ## Current-directory shell shortcuts
 
-Source `shell/agent-slots.zsh` from `.zshrc` to get `cc1h` through `cc4h`.
-Unlike project-specific slot commands, the `h` means **here**: the CLI starts in
-the directory where the operator is standing.
+Source `shell/agent-slots.zsh` from `.zshrc`. Dedicated commands are deliberately
+visible instead of hidden behind a generic dispatcher:
+
+| Provider | Current-directory shortcuts |
+|---|---|
+| Claude Code | `cc1h`, `cc2h`, `cc3h`, `cc4h` |
+| Codex | `cx1h`, `cx2h`, `cx3h` |
+| Antigravity | `agy1h`, `agy2h` |
+
+The `h` means **here**: the CLI starts in the directory where the operator is
+standing.
 
 ## Trust boundary
 
