@@ -12,6 +12,7 @@ hypr/    Hyprland + hyprlock + helper scripts
 tmux/    tmux: vi-mode, clipboard, fzf session picker, voice input
 git/     audible feedback on every commit
 operator/ portable launchers for isolated worktrees and concurrent agent seats
+enforcement/ AST rules and architecture gates extracted from production work
 shell/   current-directory shortcuts for separately authenticated CLI profiles
 install.sh   symlink everything into place (idempotent, backs up originals)
 ```
@@ -63,6 +64,12 @@ chosen CLI profile inside it. See [`operator/`](operator/README.md).
 run at the same time without pretending they share one account or one state
 directory. The public scripts describe profile selection and process isolation;
 credentials and provider session data never enter this repository.
+
+**Architecture that fails before review.** The [`enforcement/`](enforcement/README.md)
+toolkit turns decisions such as “time is injected,” “the ORM stays in adapters,”
+and “browser storage is not session authority” into ast-grep rules. It is a
+small public extraction of the larger custom ESLint, dependency-boundary and
+debt-ratchet system I use in production-sized monorepos.
 
 ## Install
 

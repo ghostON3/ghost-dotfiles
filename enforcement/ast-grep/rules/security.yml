@@ -1,0 +1,29 @@
+id: no-eval
+language: TypeScript
+severity: error
+message: Do not use eval; use an explicit parser or allowlisted dispatch.
+rule:
+  pattern: eval($$$ARGS)
+files:
+  - "**/*.{ts,tsx}"
+---
+id: no-dangerously-set-inner-html
+language: Tsx
+severity: error
+message: Route rich HTML through one reviewed sanitizer component.
+rule:
+  pattern: dangerouslySetInnerHTML={$VALUE}
+files:
+  - "**/*.tsx"
+---
+id: no-auth-material-in-local-storage
+language: TypeScript
+severity: error
+message: Do not make localStorage an authentication or session authority.
+rule:
+  pattern: localStorage.setItem($KEY, $VALUE)
+constraints:
+  KEY:
+    regex: "(?i)(token|jwt|secret|auth|session)"
+files:
+  - "**/*.{ts,tsx}"
