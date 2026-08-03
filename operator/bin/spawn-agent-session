@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Open a provider profile in a uniquely named tmux session inside Kitty.
+set -euo pipefail
+
+provider="${1:-}"
+profile="${2:-default}"
+workdir="${3:-$PWD}"
+shift "$(( $# >= 3 ? 3 : $# ))"
+
+usage() {
+  echo "usage: spawn-agent-session <claude|codex|antigravity> <profile|default> [workdir] [provider args...]" >&2
+  exit 64
+}
+
+[[ -n "$provider" ]] || usage
+[[ -d "$workdir" ]] || { echo "workdir does not exist: $workdir" >&2; exit 66; }
+command -v tmux >/dev/null || { echo "missing dependency: tmux" >&2; exit 69; }
+command -v kitty >/dev/null || { echo "missing dependency: kitty" >&2; exit 69; }
+
+suffix=""
+[[ "$profile" == "default" ]] || suffix="-$profile"
+nonce="$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')"
+session="${provider}-${profile}-${nonce}"
+
+case "$provider" in
+  claude)
+    command_name="${CLAUDE_COMMAND:-claude}"
+    config_dir="${CLAUDE_PROFILE_ROOT:-$HOME/.claude}${suffix}"
+    [[ -d "$config_dir" ]] || { echo "Claude profile not found: $config_dir" >&2; exit 66; }
+    env_args=("CLAUDE_CONFIG_DIR=$config_dir")
+    ;;
+  codex)
+    command_name="${CODEX_COMMAND:-codex}"
+    config_dir="${CODEX_PROFILE_ROOT:-$HOME/.codex}${suffix}"
+    [[ -d "$config_dir" ]] || { echo "Codex profile not found: $config_dir" >&2; exit 66; }
+    env_args=("CODEX_HOME=$config_dir")
+    ;;
+  antigravity)
+    command_name="${ANTIGRAVITY_COMMAND:-agy}"
+    env_args=()
+    [[ "$profile" == "default" ]] || set -- "$profile" "$@"
+    ;;
+  *) usage ;;
+esac
+
+command -v "$command_name" >/dev/null || { echo "missing provider command: $command_name" >&2; exit 69; }
+
+printf 'open: %s profile=%s session=%s cwd=%s\n' "$provider" "$profile" "$session" "$workdir"
+kitty --detach -- tmux new-session -s "$session" -c "$workdir" \
+  "${env_args[@]}" "$command_name" "$@"

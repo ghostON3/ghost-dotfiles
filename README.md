@@ -1,7 +1,8 @@
 # ghost-dotfiles
 
-My Arch Linux + Hyprland workstation, as code. Dual-4K, Wayland-native,
-keyboard-first, tuned over months of full-time use — not a screenshot rice.
+My Arch Linux + Hyprland workstation and agentic development environment, as
+code. Dual-4K, Wayland-native, keyboard-and-mouse driven, tuned through daily
+use — not a screenshot rice and not a generic starter kit.
 
 Every binding here earns its place. The interesting parts aren't the colors;
 they're the small behavioral fixes that a tiling WM doesn't give you for free.
@@ -10,6 +11,8 @@ they're the small behavioral fixes that a tiling WM doesn't give you for free.
 hypr/    Hyprland + hyprlock + helper scripts
 tmux/    tmux: vi-mode, clipboard, fzf session picker, voice input
 git/     audible feedback on every commit
+operator/ portable launchers for isolated worktrees and concurrent agent seats
+shell/   current-directory shortcuts for separately authenticated CLI profiles
 install.sh   symlink everything into place (idempotent, backs up originals)
 ```
 
@@ -50,6 +53,17 @@ whatever audio player exists) and the event-driven one I actually run (POSTs
 the commit to a local API that fans it out to every open surface). See
 [`git/README.md`](git/README.md).
 
+**One gesture, one isolated lane.** Mouse side buttons can open separately
+authenticated Claude Code seats in fresh tmux sessions. The worktree launcher
+goes further: it creates a branch from an explicit base, places the worktree on
+a dedicated worktree volume (with a configurable fallback), and starts the
+chosen CLI profile inside it. See [`operator/`](operator/README.md).
+
+**Several tools, explicit identities.** Claude Code, Codex and Antigravity can
+run at the same time without pretending they share one account or one state
+directory. The public scripts describe profile selection and process isolation;
+credentials and provider session data never enter this repository.
+
 ## Install
 
 ```sh
@@ -72,10 +86,11 @@ fetch plugins) + `wl-clipboard`.
 
 ## Personal overlay
 
-My private automation (Claude Code spawners, voice PTT, usage analytics) is
-kept out of the portable core. `hypr/hyprland.conf` sources an optional
-`personal.conf` that is gitignored; `hypr/personal.conf.example` shows the
-shape without shipping the binaries.
+Provider credentials, subscription state, machine inventory and usage history
+stay private. The reusable mechanics — agent-seat launchers, worktree isolation,
+mouse bindings and shell functions — are public. `hypr/hyprland.conf` sources an
+optional `personal.conf` that is gitignored; `hypr/personal.conf.example` wires
+the portable commands without embedding account data.
 
 ## Hardware it was tuned on
 

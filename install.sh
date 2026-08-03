@@ -27,6 +27,12 @@ link "$REPO/hypr/scripts"       "$HOME/.config/hypr/scripts"
 # tmux
 link "$REPO/tmux/tmux.conf" "$HOME/.tmux.conf"
 
+# Agent/operator launchers. Credentials and CLI state remain in their native
+# profile directories; only the reusable launch mechanics are linked here.
+link "$REPO/operator/bin/spawn-agent-session" "$HOME/.local/bin/spawn-agent-session"
+link "$REPO/operator/bin/new-agent-worktree" "$HOME/.local/bin/new-agent-worktree"
+link "$REPO/shell/agent-slots.zsh" "$HOME/.config/ghost-dotfiles/agent-slots.zsh"
+
 # Git commit-sound hook (standalone variant) via global template
 mkdir -p "$HOME/.config/git/template/hooks"
 cp "$REPO/git/hooks/post-commit-standalone" "$HOME/.config/git/template/hooks/post-commit"
@@ -37,5 +43,6 @@ echo "git:    commit-sound hook installed to template dir"
 echo
 echo "Done. Next:"
 echo "  - cp hypr/personal.conf.example ~/.config/hypr/personal.conf  (optional)"
+echo "  - source ~/.config/ghost-dotfiles/agent-slots.zsh from ~/.zshrc"
 echo "  - install tmux plugins: prefix + I  (after cloning tpm)"
 echo "  - reload Hyprland: hyprctl reload"
