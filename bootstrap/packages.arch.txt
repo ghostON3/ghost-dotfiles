@@ -1,0 +1,27 @@
+# Initial Arch Linux package set for the public workstation core.
+# Review before installing; optional hardware/provider tools are separate.
+
+# desktop/session
+hyprland
+hyprlock
+kitty
+tmux
+rofi-wayland
+waybar
+
+# Wayland clipboard and capture
+wl-clipboard
+cliphist
+grim
+slurp
+
+# operator scripts
+git
+jq
+fzf
+
+# optional input/media/hardware
+tesseract
+wtype
+playerctl
+ddcutil
