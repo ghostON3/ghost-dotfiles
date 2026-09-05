@@ -60,3 +60,33 @@ antigravity-here() {
 
 agy1h() { antigravity-here 1 "$@"; }
 agy2h() { antigravity-here 2 "$@"; }
+
+# The *h functions above take over the current terminal, so one directory holds
+# one agent per profile. The *n functions below open an ADDITIONAL agent in the
+# current directory, so N agents can work the same repo concurrently (mind the
+# shared git index — give committing lanes their own worktree).
+#
+# Session naming is not re-derived here: spawn-agent-session is the single owner
+# of unique session names, and it already defaults its workdir to $PWD.
+#
+#   cd ~/projects/somerepo && cc4n && cc4n     # two independent Claude agents
+#   cc1n --model opus                          # provider args pass through
+agent-here-new() {
+  local provider="$1" profile="${2:-default}"
+  shift 2 2>/dev/null || shift $#
+  local spawn="${GHOST_SPAWN_AGENT_SESSION:-$HOME/.local/bin/spawn-agent-session}"
+  [[ -x "$spawn" ]] || spawn="spawn-agent-session"
+  "$spawn" "$provider" "$profile" "$PWD" "$@"
+}
+
+cc1n() { agent-here-new claude 1 "$@"; }
+cc2n() { agent-here-new claude 2 "$@"; }
+cc3n() { agent-here-new claude 3 "$@"; }
+cc4n() { agent-here-new claude 4 "$@"; }
+
+cx1n() { agent-here-new codex 1 "$@"; }
+cx2n() { agent-here-new codex 2 "$@"; }
+cx3n() { agent-here-new codex 3 "$@"; }
+
+agy1n() { agent-here-new antigravity 1 "$@"; }
+agy2n() { agent-here-new antigravity 2 "$@"; }
